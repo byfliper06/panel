@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control</title>
+    <title>Panel de Control - Imperio Zaw</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
@@ -18,127 +21,59 @@
             overflow: hidden;
             color: white;
         }
-
-        /* Orbes de fondo mejorados */
-        .bg-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.3;
-            animation: float 10s ease-in-out infinite;
-            z-index: 0;
-        }
+        .bg-orb { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.3; animation: float 10s ease-in-out infinite; z-index: 0; }
         .orb1 { width: 500px; height: 500px; background: #ff006e; top: -150px; left: -150px; }
         .orb2 { width: 400px; height: 400px; background: #3a86ff; bottom: -100px; right: -100px; animation-delay: -5s; }
         @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(40px, -40px); } }
 
-        /* Contenedor Glassmorphism */
         .container {
-            position: relative;
-            z-index: 10;
+            position: relative; z-index: 10;
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(30px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 32px;
-            width: 440px;
-            text-align: center;
+            padding: 40px; border-radius: 32px; width: 440px; text-align: center;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.6s ease-out;
         }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
         h1 { color: #ff2d75; font-size: 32px; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; margin-bottom: 5px; }
         .subtitle { color: rgba(255, 255, 255, 0.4); font-size: 11px; margin-bottom: 35px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .status-dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; }
 
-        /* Estilos de Fila */
         .channel-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px; transition: 0.3s;
         }
-
-        .channel-row:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 45, 117, 0.3);
-            transform: translateX(5px);
-        }
-
+        .channel-row:hover { background: rgba(255, 255, 255, 0.06); transform: translateX(5px); }
         .channel-info { display: flex; align-items: center; gap: 15px; }
-        .channel-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+        .channel-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .gen-bg { background: linear-gradient(135deg, #ff006e, #ff4d6d); }
         .react-bg { background: linear-gradient(135deg, #8338ec, #c77dff); }
         .would-bg { background: linear-gradient(135deg, #3a86ff, #00b4d8); }
-        .channel-name { font-weight: 700; font-size: 14px; color: white; }
-
-        /* Inputs ARREGLADOS Y CENTRADOS */
+        
         input {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
-            outline: none;
-            transition: 0.3s;
-            text-align: center; /* CENTRADO */
+            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; padding: 12px; border-radius: 12px; outline: none; text-align: center;
         }
-
-        .subs-input {
-            width: 140px;
-            font-size: 20px; /* MÁS GRANDES */
-            font-family: 'Consolas', monospace;
-            font-weight: 800;
-            color: #00ff88;
-        }
-
+        .subs-input { width: 140px; font-size: 20px; font-family: 'Consolas', monospace; font-weight: 800; color: #00ff88; }
         .login-input { width: 100%; font-size: 18px; margin-bottom: 20px; letter-spacing: 5px; }
 
-        /* Botón Pro */
         button {
-            width: 100%;
-            background: #ff2d75;
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 18px;
-            cursor: pointer;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(255, 45, 117, 0.2);
+            width: 100%; background: #ff2d75; color: white; border: none;
+            padding: 18px; border-radius: 18px; cursor: pointer; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;
         }
+        button:hover { background: #ff4d8d; transform: translateY(-3px); }
 
-        button:hover { background: #ff4d8d; transform: translateY(-3px); box-shadow: 0 15px 25px rgba(255, 45, 117, 0.4); }
-
-        /* Notificación Web Propia */
         #custom-toast {
-            position: fixed;
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-weight: 700;
-            z-index: 1000;
-            transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            padding: 15px 30px; border-radius: 12px; font-weight: 700; z-index: 1000;
+            transition: 0.5s; display: flex; align-items: center; gap: 10px;
         }
-
         .toast-success { background: #00ff88; color: #0a0b14; }
         .toast-error { background: #ff2d75; color: white; }
-
         .footer { margin-top: 25px; font-size: 11px; color: rgba(255, 255, 255, 0.3); }
         #last-update { color: #3a86ff; font-weight: bold; }
     </style>
@@ -146,14 +81,13 @@
 <body>
 
 <div id="custom-toast"></div>
-
 <div class="bg-orb orb1"></div>
 <div class="bg-orb orb2"></div>
 
 <div id="login-overlay" style="display: flex; position: fixed; inset: 0; z-index: 100; background: #0a0b14; justify-content: center; align-items: center;">
     <div class="container">
         <h1>ACCESO</h1>
-        <div class="subtitle">SISTEMA PRIVADO ZAW</div>
+        <div class="subtitle">SISTEMA PRIVADO</div>
         <input type="password" id="pass-field" class="login-input" placeholder="••••••">
         <button onclick="checkLogin()">ENTRAR</button>
     </div>
@@ -161,46 +95,41 @@
 
 <div class="container" id="main-panel" style="display: none;">
     <h1>CONTADOR SUBS</h1>
-    <div class="subtitle">
-        <span class="status-dot"></span>
-        ESTADÍSTICAS
-    </div>
+    <div class="subtitle"><span class="status-dot"></span> ESTADÍSTICAS</div>
     
     <div class="channels">
         <div class="channel-row">
-            <div class="channel-info">
-                <div class="channel-icon gen-bg">G</div>
-                <span class="channel-name">GENZAW</span>
-            </div>
+            <div class="channel-info"><div class="channel-icon gen-bg">G</div><span class="channel-name">GENZAW</span></div>
             <input type="text" id="gen" class="subs-input" placeholder="0" oninput="formatNumber(this)">
         </div>
-        
         <div class="channel-row">
-            <div class="channel-info">
-                <div class="channel-icon react-bg">Z</div>
-                <span class="channel-name">ZAWREACTS</span>
-            </div>
+            <div class="channel-info"><div class="channel-icon react-bg">Z</div><span class="channel-name">ZAWREACTS</span></div>
             <input type="text" id="react" class="subs-input" placeholder="0" oninput="formatNumber(this)">
         </div>
-        
         <div class="channel-row">
-            <div class="channel-info">
-                <div class="channel-icon would-bg">W</div>
-                <span class="channel-name">WOULDZAW</span>
-            </div>
+            <div class="channel-info"><div class="channel-icon would-bg">W</div><span class="channel-name">WOULDZAW</span></div>
             <input type="text" id="would" class="subs-input" placeholder="0" oninput="formatNumber(this)">
         </div>
     </div>
 
     <button onclick="saveData()">ACTUALIZAR PANEL</button>
-
-    <div class="footer">
-        Ultima Actualización: <span id="last-update">Nunca</span>
-    </div>
+    <div class="footer">Ultima Actualización: <span id="last-update">Cargando...</span></div>
 </div>
 
 <script>
-    const CORRECT_PASS = "Kevin";
+    // CONFIGURACIÓN DE TU FIREBASE
+    const firebaseConfig = {
+        apiKey: "AIzaSyDHhGmSUS1MpNEAZaI_G365uWLGEZ3zlr4",
+        authDomain: "imperio-zaw.firebaseapp.com",
+        databaseURL: "https://imperio-zaw-default-rtdb.firebaseio.com",
+        projectId: "imperio-zaw",
+        storageBucket: "imperio-zaw.firebasestorage.app",
+        messagingSenderId: "281331374578",
+        appId: "1:281331374578:web:2db167949f367d87c2f36b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     function showToast(msg, type) {
         const toast = document.getElementById('custom-toast');
@@ -211,18 +140,35 @@
     }
 
     function checkLogin() {
-        const pass = document.getElementById('pass-field').value;
-        if(pass === CORRECT_PASS) {
+        if(document.getElementById('pass-field').value === "Kevin") {
             showToast("Bienvenido Kevin", "success");
-            document.getElementById('login-overlay').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('main-panel').style.display = 'block';
-            }, 500);
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-panel').style.display = 'block';
         } else {
             showToast("Acceso Denegado", "error");
-            document.getElementById('pass-field').value = "";
         }
+    }
+
+    // CARGA EN TIEMPO REAL
+    db.ref('stats').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if(data) {
+            document.getElementById('gen').value = data.gen;
+            document.getElementById('react').value = data.react;
+            document.getElementById('would').value = data.would;
+            document.getElementById('last-update').innerText = data.date;
+        }
+    });
+
+    function saveData() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+        db.ref('stats').set({
+            gen: document.getElementById('gen').value,
+            react: document.getElementById('react').value,
+            would: document.getElementById('would').value,
+            date: dateStr
+        }).then(() => showToast("Sincronizado", "success"));
     }
 
     function formatNumber(input) {
@@ -230,31 +176,6 @@
         if (val === "") return;
         input.value = new Intl.NumberFormat('de-DE').format(val);
     }
-
-    window.onload = function() {
-        const saved = JSON.parse(localStorage.getItem('zawV5'));
-        if(saved) {
-            document.getElementById('gen').value = saved.gen;
-            document.getElementById('react').value = saved.react;
-            document.getElementById('would').value = saved.would;
-            document.getElementById('last-update').innerText = saved.date;
-        }
-    }
-
-    function saveData() {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-        const data = {
-            gen: document.getElementById('gen').value,
-            react: document.getElementById('react').value,
-            would: document.getElementById('would').value,
-            date: dateStr
-        };
-        localStorage.setItem('zawV5', JSON.stringify(data));
-        document.getElementById('last-update').innerText = dateStr;
-        showToast("Estadísticas Actualizadas", "success");
-    }
 </script>
-
 </body>
 </html>
