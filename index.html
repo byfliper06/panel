@@ -48,7 +48,7 @@
         }
         .channel-row:hover { background: rgba(255, 255, 255, 0.06); transform: translateX(5px); }
         .channel-info { display: flex; align-items: center; gap: 15px; }
-        .channel-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .channel-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
         .gen-bg { background: linear-gradient(135deg, #ff006e, #ff4d6d); }
         .react-bg { background: linear-gradient(135deg, #8338ec, #c77dff); }
         .would-bg { background: linear-gradient(135deg, #3a86ff, #00b4d8); }
@@ -87,7 +87,7 @@
 <div id="login-overlay" style="display: flex; position: fixed; inset: 0; z-index: 100; background: #0a0b14; justify-content: center; align-items: center;">
     <div class="container">
         <h1>ACCESO</h1>
-        <div class="subtitle">SISTEMA PRIVADO</div>
+        <div class="subtitle">SISTEMA PRIVADO ZAW</div>
         <input type="password" id="pass-field" class="login-input" placeholder="••••••">
         <button onclick="checkLogin()">ENTRAR</button>
     </div>
@@ -95,7 +95,7 @@
 
 <div class="container" id="main-panel" style="display: none;">
     <h1>CONTADOR SUBS</h1>
-    <div class="subtitle"><span class="status-dot"></span> ESTADÍSTICAS</div>
+    <div class="subtitle"><span class="status-dot"></span> IMPERIO ZAW - LIVE STATS</div>
     
     <div class="channels">
         <div class="channel-row">
@@ -176,6 +176,26 @@
         if (val === "") return;
         input.value = new Intl.NumberFormat('de-DE').format(val);
     }
+
+    // --- NUEVO: FUNCIONALIDAD TECLA ENTER ---
+    
+    // Al pulsar Enter en el campo de contraseña
+    document.getElementById('pass-field').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            checkLogin();
+        }
+    });
+
+    // Al pulsar Enter en cualquiera de los inputs de suscriptores
+    const inputs = ['gen', 'react', 'would'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                saveData();
+            }
+        });
+    });
+
 </script>
 </body>
 </html>
