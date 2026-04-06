@@ -1,148 +1,819 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Suscriptores</title>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', sans-serif; min-height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            background: #0a0b14; color: white; overflow: hidden;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px;
-            border-radius: 30px; width: 420px; text-align: center; position: relative; z-index: 10;
-        }
-        h1 { color: #ff2d75; font-size: 28px; letter-spacing: 2px; margin-bottom: 10px; }
-        .subtitle { color: rgba(255, 255, 255, 0.4); font-size: 10px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; }
-        
-        .row {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255, 255, 255, 0.02); padding: 15px;
-            margin-bottom: 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .info { display: flex; align-items: center; gap: 12px; color: white; font-weight: bold; font-size: 14px; }
-        .icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; }
-        
-        input {
-            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white; padding: 10px; border-radius: 12px; text-align: center; outline: none;
-        }
-        .subs-input { width: 130px; font-size: 18px; color: #00ff88; font-weight: 800; }
-        .login-input { width: 100%; font-size: 20px; margin-bottom: 20px; letter-spacing: 4px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imperio ZAW</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        button {
-            width: 100%; background: #ff2d75; color: white; border: none;
-            padding: 16px; border-radius: 15px; cursor: pointer; font-weight: 800;
-            transition: 0.3s; margin-top: 10px;
-        }
-        button:hover { background: #ff4d8d; transform: scale(1.02); }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
+      min-height: 100vh;
+      color: white;
+      overflow-x: hidden;
+    }
 
-        #toast {
-            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
-            padding: 15px 30px; border-radius: 15px; font-weight: bold; z-index: 1000; transition: 0.5s;
-        }
-        .success { background: #00ff88; color: #0a0b14; }
-        .error { background: #ff2d75; color: white; }
-        .footer { margin-top: 20px; font-size: 10px; color: rgba(255, 255, 255, 0.3); }
-    </style>
+    /* Animations */
+    @keyframes fade-in {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    @keyframes float-delayed {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(20px) scale(1.03); }
+    }
+
+    @keyframes gradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.8; }
+    }
+
+    /* Background orbs */
+    .bg-container {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+    }
+
+    .orb-cyan {
+      width: 500px;
+      height: 500px;
+      background: rgba(34, 211, 238, 0.1);
+      top: 0;
+      left: 25%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .orb-purple {
+      width: 600px;
+      height: 600px;
+      background: rgba(168, 85, 247, 0.1);
+      bottom: 0;
+      right: 25%;
+      animation: float-delayed 10s ease-in-out infinite;
+    }
+
+    .orb-pink {
+      width: 400px;
+      height: 400px;
+      background: rgba(236, 72, 153, 0.05);
+      top: 50%;
+      right: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    /* Login Screen */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .login-bg .orb-cyan,
+    .login-bg .orb-purple {
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    .login-bg .orb-pink {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulse 4s ease-in-out infinite 0.5s;
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.1);
+      transition: all 0.5s ease;
+      animation: fade-in 0.6s ease-out forwards;
+    }
+
+    .login-card:hover {
+      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.2);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .login-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .icon-container {
+      position: relative;
+    }
+
+    .icon-glow {
+      position: absolute;
+      inset: 0;
+      background: rgba(34, 211, 238, 0.3);
+      filter: blur(16px);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .icon-circle {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #22d3ee, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-circle svg {
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+
+    .login-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #22d3ee, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.2em;
+    }
+
+    .login-input {
+      width: 256px;
+      padding: 0.75rem 1.25rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .login-input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .login-input:focus {
+      border-color: rgba(34, 211, 238, 0.5);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+    }
+
+    .login-btn {
+      position: relative;
+      width: 100%;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(90deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.2));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      border-color: rgba(34, 211, 238, 0.5);
+      box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.2);
+    }
+
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #22d3ee, #a855f7);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .login-btn:hover::after {
+      opacity: 0.2;
+    }
+
+    .login-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Main App */
+    .app-container {
+      min-height: 100vh;
+      padding: 1rem;
+      position: relative;
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        padding: 2rem;
+      }
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 10;
+      max-width: 896px;
+      margin: 0 auto;
+    }
+
+    /* Counter Card */
+    .counter-card {
+      margin-bottom: 2rem;
+      animation: slide-down 0.6s ease-out forwards;
+    }
+
+    .glass-card {
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(236, 72, 153, 0.1);
+      transition: all 0.5s ease;
+    }
+
+    .glass-card:hover {
+      box-shadow: 0 25px 50px -12px rgba(236, 72, 153, 0.2);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .counter-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .counter-glow {
+      position: relative;
+    }
+
+    .counter-glow::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      background: linear-gradient(90deg, rgba(236, 72, 153, 0.3), rgba(168, 85, 247, 0.3));
+      filter: blur(40px);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .counter-number {
+      position: relative;
+      font-size: 3.75rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #f472b6, #a855f7, #22d3ee);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient 3s ease infinite;
+    }
+
+    @media (min-width: 768px) {
+      .counter-number {
+        font-size: 4.5rem;
+      }
+    }
+
+    .counter-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 0.3em;
+      font-weight: 500;
+    }
+
+    .progress-container {
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 320px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ec4899, #a855f7);
+      border-radius: 9999px;
+      transition: width 1s ease;
+    }
+
+    /* Calendar */
+    .calendar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .month-card {
+      animation: slide-up 0.6s ease-out forwards;
+    }
+
+    .month-card:nth-child(2) { animation-delay: 100ms; }
+    .month-card:nth-child(3) { animation-delay: 200ms; }
+
+    .month-glass {
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.5s ease;
+    }
+
+    .month-glass:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .month-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .month-indicator {
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #a855f7, #22d3ee);
+      border-radius: 9999px;
+    }
+
+    .month-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .days-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.75rem;
+      }
+    }
+
+    .day-box {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.2);
+      opacity: 0.5;
+      transition: all 0.3s ease;
+      user-select: none;
+      cursor: default;
+    }
+
+    @media (min-width: 768px) {
+      .day-box {
+        font-size: 1rem;
+      }
+    }
+
+    .day-box.edit-mode {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.6);
+      opacity: 0.9;
+      cursor: pointer;
+    }
+
+    .day-box.edit-mode:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .day-box.completed {
+      border-color: rgba(52, 211, 153, 0.6);
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.3);
+      opacity: 1;
+    }
+
+    .day-box.non-school {
+      border-color: rgba(251, 191, 36, 0.6);
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.3);
+      opacity: 1;
+    }
+
+    /* Edit Button */
+    .edit-btn {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.5s ease;
+      box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.2);
+      z-index: 50;
+    }
+
+    .edit-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .edit-btn.active {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(52, 211, 153, 0.5);
+      box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.3);
+      transform: scale(1.1);
+    }
+
+    .edit-btn svg {
+      width: 24px;
+      height: 24px;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.3s ease;
+    }
+
+    .edit-btn.active svg {
+      color: #34d399;
+      transform: rotate(12deg);
+    }
+
+    /* Hidden */
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-
-<div id="toast"></div>
-
-<div id="login-screen" style="position: fixed; inset: 0; background: #0a0b14; z-index: 100; display: flex; justify-content: center; align-items: center;">
-    <div class="container">
-        <h1>ACCESO</h1>
-        <input type="password" id="pass" class="login-input" placeholder="••••••" autofocus>
-        <button onclick="login()">ENTRAR</button>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-container">
+    <div class="bg-container login-bg">
+      <div class="orb orb-cyan"></div>
+      <div class="orb orb-purple"></div>
+      <div class="orb orb-pink"></div>
     </div>
-</div>
 
-<div class="container" id="main" style="display:none;">
-    <h1>CONTADOR SUBS</h1>
-    <div class="subtitle"><div class="dot"></div>LIVE STATS</div>
-    <div class="row">
-        <div class="info"><div class="icon" style="background: linear-gradient(135deg, #ff006e, #ff4d6d);">G</div>GENZAW</div>
-        <input type="text" id="gen" class="subs-input" placeholder="0" oninput="fmt(this)">
-    </div>
-    <div class="row">
-        <div class="info"><div class="icon" style="background: linear-gradient(135deg, #8338ec, #c77dff);">Z</div>ZAWREACTS</div>
-        <input type="text" id="react" class="subs-input" placeholder="0" oninput="fmt(this)">
-    </div>
-    <div class="row">
-        <div class="info"><div class="icon" style="background: linear-gradient(135deg, #3a86ff, #00b4d8);">W</div>WOULDZAW</div>
-        <input type="text" id="would" class="subs-input" placeholder="0" oninput="fmt(this)">
-    </div>
-    <button onclick="save()">ACTUALIZAR PANEL</button>
-    <div class="footer">Ultima Actualización: <span id="time" style="color:#3a86ff">...</span></div>
-</div>
+    <div class="login-card">
+      <div class="login-content">
+        <div class="icon-container">
+          <div class="icon-glow"></div>
+          <div class="icon-circle">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </div>
+        </div>
 
-<script>
+        <h3 class="login-title">ACCESO PRIVADO</h3>
+
+        <input 
+          type="password" 
+          id="passwordInput" 
+          class="login-input" 
+          placeholder="Contraseña"
+        >
+
+        <button id="loginBtn" class="login-btn">
+          <span>ENTRAR</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="appScreen" class="app-container">
+    <div class="bg-container">
+      <div class="orb orb-cyan"></div>
+      <div class="orb orb-purple"></div>
+      <div class="orb orb-pink"></div>
+    </div>
+
+    <div class="content-wrapper">
+      <!-- Counter -->
+      <div class="counter-card">
+        <div class="glass-card">
+          <div class="counter-content">
+            <div class="counter-glow">
+              <span id="daysCounter" class="counter-number">--</span>
+            </div>
+            <span class="counter-label">DÍAS RESTANTES</span>
+            <div class="progress-container">
+              <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="calendar-section">
+        <div class="month-card">
+          <div class="month-glass">
+            <h2 class="month-header">
+              <div class="month-indicator"></div>
+              <span class="month-name">Abril</span>
+            </h2>
+            <div id="abril" class="days-grid"></div>
+          </div>
+        </div>
+
+        <div class="month-card">
+          <div class="month-glass">
+            <h2 class="month-header">
+              <div class="month-indicator"></div>
+              <span class="month-name">Mayo</span>
+            </h2>
+            <div id="mayo" class="days-grid"></div>
+          </div>
+        </div>
+
+        <div class="month-card">
+          <div class="month-glass">
+            <h2 class="month-header">
+              <div class="month-indicator"></div>
+              <span class="month-name">Junio</span>
+            </h2>
+            <div id="junio" class="days-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Button -->
+    <button id="editBtn" class="edit-btn">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase config
     const firebaseConfig = {
-        apiKey: "AIzaSyDHhGmSUS1MpNEAZaI_G365uWLGEZ3zlr4",
-        authDomain: "imperio-zaw.firebaseapp.com",
-        databaseURL: "https://imperio-zaw-default-rtdb.firebaseio.com",
-        projectId: "imperio-zaw",
-        storageBucket: "imperio-zaw.firebasestorage.app",
-        messagingSenderId: "281331374578",
-        appId: "1:281331374578:web:2db167949f367d87c2f36b"
+      apiKey: "AIzaSyDHhGmSUS1MpNEAZaI_G365uWLGEZ3zlr4",
+      authDomain: "imperio-zaw.firebaseapp.com",
+      databaseURL: "https://imperio-zaw-default-rtdb.firebaseio.com",
+      projectId: "imperio-zaw",
+      storageBucket: "imperio-zaw.firebasestorage.app",
+      messagingSenderId: "281331374578",
+      appId: "1:281331374578:web:2db167949f367d87c2f36b",
+      measurementId: "G-013E05RNCQ"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function msg(t, c) {
-        const s = document.getElementById('toast');
-        s.innerText = t; s.className = c; s.style.top = '30px';
-        setTimeout(() => s.style.top = '-100px', 3000);
-    }
+    // Date boundaries
+    const START_DATE = new Date(2026, 3, 6);
+    const END_DATE = new Date(2026, 5, 19);
 
-    function login() {
-        if(document.getElementById('pass').value === "kevin") {
-            msg("Bienvenido Kevin", "success");
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main').style.display = 'block';
-            document.getElementById('gen').focus();
-        } else { msg("Error", "error"); }
-    }
+    // State
+    let editActive = false;
+    let cloudData = {};
+    let pressTimer = null;
+    let longPressTriggered = false;
 
-    db.ref('stats').on('value', (s) => {
-        const d = s.val();
-        if(d) {
-            document.getElementById('gen').value = d.gen;
-            document.getElementById('react').value = d.react;
-            document.getElementById('would').value = d.would;
-            document.getElementById('time').innerText = d.date;
+    // DOM Elements
+    const loginScreen = document.getElementById('loginScreen');
+    const appScreen = document.getElementById('appScreen');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const editBtn = document.getElementById('editBtn');
+    const daysCounter = document.getElementById('daysCounter');
+    const progressBar = document.getElementById('progressBar');
+
+    // Generate all valid day IDs
+    function getValidDayIds() {
+      const ids = [];
+      const months = [3, 4, 5]; // April, May, June
+
+      months.forEach(m => {
+        const d = new Date(2026, m, 1);
+        while (d.getMonth() === m) {
+          if (d >= START_DATE && d <= END_DATE) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            ids.push(`${year}-${month}-${day}`);
+          }
+          d.setDate(d.getDate() + 1);
         }
-    });
+      });
 
-    function save() {
-        const d = new Date().toLocaleString();
-        db.ref('stats').set({
-            gen: document.getElementById('gen').value,
-            react: document.getElementById('react').value,
-            would: document.getElementById('would').value,
-            date: d
-        }).then(() => msg("Sincronizado", "success"));
+      return ids;
     }
 
-    function fmt(i) {
-        let v = i.value.replace(/\D/g, "");
-        if (v) i.value = new Intl.NumberFormat('de-DE').format(v);
+    const validDayIds = getValidDayIds();
+
+    // Login
+    function login() {
+      if (passwordInput.value === 'findelinsti') {
+        loginScreen.style.display = 'none';
+        appScreen.style.display = 'block';
+        initCalendar();
+        listenToData();
+      }
     }
 
-    // ENTER KEYS
-    document.getElementById('pass').addEventListener('keypress', e => e.key === 'Enter' && login());
-    ['gen', 'react', 'would'].forEach(id => {
-        document.getElementById(id).addEventListener('keypress', e => e.key === 'Enter' && save());
+    loginBtn.addEventListener('click', login);
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login();
     });
-</script>
+
+    // Edit toggle
+    editBtn.addEventListener('click', () => {
+      editActive = !editActive;
+      editBtn.classList.toggle('active', editActive);
+      updateDayStyles();
+    });
+
+    // Initialize calendar
+    function initCalendar() {
+      const containers = {
+        3: document.getElementById('abril'),
+        4: document.getElementById('mayo'),
+        5: document.getElementById('junio')
+      };
+
+      validDayIds.forEach(id => {
+        const monthNum = parseInt(id.split('-')[1], 10) - 1;
+        const dayNum = parseInt(id.split('-')[2], 10);
+        const container = containers[monthNum];
+
+        if (container) {
+          const dayBox = document.createElement('div');
+          dayBox.className = 'day-box';
+          dayBox.id = `day-${id}`;
+          dayBox.textContent = dayNum;
+          dayBox.dataset.id = id;
+
+          // Touch/Mouse events
+          dayBox.addEventListener('mousedown', () => startAction(id));
+          dayBox.addEventListener('mouseup', () => endAction(id));
+          dayBox.addEventListener('mouseleave', cancelAction);
+          dayBox.addEventListener('touchstart', (e) => { e.preventDefault(); startAction(id); });
+          dayBox.addEventListener('touchend', (e) => { e.preventDefault(); endAction(id); });
+
+          container.appendChild(dayBox);
+        }
+      });
+    }
+
+    // Press actions
+    function startAction(id) {
+      if (!editActive) return;
+      longPressTriggered = false;
+      pressTimer = setTimeout(() => {
+        longPressTriggered = true;
+        save(id, 'non-school');
+      }, 600);
+    }
+
+    function endAction(id) {
+      if (pressTimer) clearTimeout(pressTimer);
+      if (!longPressTriggered && editActive) {
+        save(id, 'completed');
+      }
+    }
+
+    function cancelAction() {
+      if (pressTimer) clearTimeout(pressTimer);
+    }
+
+    // Save to Firebase
+    function save(id, target) {
+      const current = cloudData[id] || 'none';
+      const value = current === target ? 'none' : target;
+      db.ref('days/' + id).set(value);
+    }
+
+    // Listen to Firebase data
+    function listenToData() {
+      db.ref('days').on('value', (snapshot) => {
+        cloudData = snapshot.val() || {};
+        updateUI();
+      });
+    }
+
+    // Update UI
+    function updateUI() {
+      updateDayStyles();
+      updateCounter();
+    }
+
+    function updateDayStyles() {
+      validDayIds.forEach(id => {
+        const dayBox = document.getElementById(`day-${id}`);
+        if (dayBox) {
+          const state = cloudData[id] || 'none';
+          
+          dayBox.classList.remove('completed', 'non-school', 'edit-mode');
+          
+          if (state === 'completed') {
+            dayBox.classList.add('completed');
+          } else if (state === 'non-school') {
+            dayBox.classList.add('non-school');
+          } else if (editActive) {
+            dayBox.classList.add('edit-mode');
+          }
+        }
+      });
+    }
+
+    function updateCounter() {
+      let off = 0;
+      validDayIds.forEach(id => {
+        const state = cloudData[id] || 'none';
+        if (state !== 'none') off++;
+      });
+
+      const remaining = validDayIds.length - off;
+      const progress = ((validDayIds.length - remaining) / validDayIds.length) * 100;
+
+      daysCounter.textContent = remaining;
+      progressBar.style.width = `${progress}%`;
+    }
+  </script>
 </body>
 </html>
