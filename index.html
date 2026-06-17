@@ -1,2370 +1,312 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kevin Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
-      min-height: 100vh;
-      color: white;
-      overflow-x: hidden;
-    }
-
-    /* Animations */
-    @keyframes fade-in {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes slide-down {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slide-up {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-30px) scale(1.05); }
-    }
-
-    @keyframes float-delayed {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(20px) scale(1.03); }
-    }
-
-    @keyframes gradient {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 0.8; }
-    }
-
-    @keyframes countUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Background orbs */
-    .bg-container {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-    }
-
-    .orb-cyan {
-      width: 500px;
-      height: 500px;
-      background: rgba(34, 211, 238, 0.1);
-      top: 0;
-      left: 25%;
-      animation: float 8s ease-in-out infinite;
-    }
-
-    .orb-purple {
-      width: 600px;
-      height: 600px;
-      background: rgba(168, 85, 247, 0.1);
-      bottom: 0;
-      right: 25%;
-      animation: float-delayed 10s ease-in-out infinite;
-    }
-
-    .orb-pink {
-      width: 400px;
-      height: 400px;
-      background: rgba(236, 72, 153, 0.05);
-      top: 50%;
-      right: 0;
-      animation: float 8s ease-in-out infinite;
-    }
-
-    /* Main Menu Screen */
-    .menu-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      position: relative;
-    }
-
-    .menu-card {
-      position: relative;
-      z-index: 10;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 2.5rem;
-      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.1);
-      transition: all 0.5s ease;
-      animation: fade-in 0.6s ease-out forwards;
-    }
-
-    .menu-card:hover {
-      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.2);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .menu-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-    }
-
-    .menu-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, #22d3ee, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 0.15em;
-    }
-
-    .menu-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      width: 100%;
-    }
-
-    .menu-btn {
-      position: relative;
-      width: 100%;
-      padding: 1rem 2rem;
-      background: linear-gradient(90deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.2));
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      font-weight: 500;
-      font-size: 1rem;
-      letter-spacing: 0.1em;
-      cursor: pointer;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .menu-btn:hover {
-      border-color: rgba(34, 211, 238, 0.5);
-      box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .menu-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, #22d3ee, #a855f7);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .menu-btn:hover::after {
-      opacity: 0.2;
-    }
-
-    .menu-btn span {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Login Screen */
-    .login-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      position: relative;
-    }
-
-    .login-bg .orb-cyan,
-    .login-bg .orb-purple {
-      animation: pulse 4s ease-in-out infinite;
-    }
-
-    .login-bg .orb-pink {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation: pulse 4s ease-in-out infinite 0.5s;
-    }
-
-    .login-card {
-      position: relative;
-      z-index: 10;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 2.5rem;
-      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.1);
-      transition: all 0.5s ease;
-      animation: fade-in 0.6s ease-out forwards;
-    }
-
-    .login-card:hover {
-      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.2);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .login-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .icon-container {
-      position: relative;
-    }
-
-    .icon-glow {
-      position: absolute;
-      inset: 0;
-      background: rgba(34, 211, 238, 0.3);
-      filter: blur(16px);
-      border-radius: 50%;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    .icon-circle {
-      position: relative;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #22d3ee, #a855f7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .icon-circle svg {
-      width: 32px;
-      height: 32px;
-      color: white;
-    }
-
-    .login-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      background: linear-gradient(90deg, #22d3ee, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 0.2em;
-    }
-
-    .login-input {
-      width: 256px;
-      padding: 0.75rem 1.25rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      font-size: 1rem;
-      text-align: center;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .login-input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    .login-input:focus {
-      border-color: rgba(34, 211, 238, 0.5);
-      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
-    }
-
-    .login-btn {
-      position: relative;
-      width: 100%;
-      padding: 0.75rem 2rem;
-      background: linear-gradient(90deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.2));
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      cursor: pointer;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .login-btn:hover {
-      border-color: rgba(34, 211, 238, 0.5);
-      box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.2);
-    }
-
-    .login-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, #22d3ee, #a855f7);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .login-btn:hover::after {
-      opacity: 0.2;
-    }
-
-    .login-btn span {
-      position: relative;
-      z-index: 1;
-    }
-
-    .back-btn {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .back-btn:hover {
-      border-color: rgba(255, 255, 255, 0.4);
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    /* ===================== */
-    /* APP 1: CALENDARIO     */
-    /* ===================== */
-    .app-container {
-      min-height: 100vh;
-      padding: 1rem;
-      position: relative;
-      display: none;
-    }
-
-    @media (min-width: 768px) {
-      .app-container {
-        padding: 2rem;
-      }
-    }
-
-    .content-wrapper {
-      position: relative;
-      z-index: 10;
-      max-width: 896px;
-      margin: 0 auto;
-    }
-
-    /* Counter Card */
-    .counter-card {
-      margin-bottom: 2rem;
-      animation: slide-down 0.6s ease-out forwards;
-    }
-
-    .glass-card {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: 0 25px 50px -12px rgba(236, 72, 153, 0.1);
-      transition: all 0.5s ease;
-    }
-
-    .glass-card:hover {
-      box-shadow: 0 25px 50px -12px rgba(236, 72, 153, 0.2);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .counter-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .counter-glow {
-      position: relative;
-    }
-
-    .counter-glow::before {
-      content: '';
-      position: absolute;
-      inset: -20px;
-      background: linear-gradient(90deg, rgba(236, 72, 153, 0.3), rgba(168, 85, 247, 0.3));
-      filter: blur(40px);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    .counter-number {
-      position: relative;
-      font-size: 3.75rem;
-      font-weight: 900;
-      background: linear-gradient(90deg, #f472b6, #a855f7, #22d3ee);
-      background-size: 200% 200%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: gradient 3s ease infinite;
-    }
-
-    @media (min-width: 768px) {
-      .counter-number {
-        font-size: 4.5rem;
-      }
-    }
-
-    .counter-label {
-      font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.4);
-      letter-spacing: 0.3em;
-      font-weight: 500;
-    }
-
-    .progress-container {
-      margin-top: 1rem;
-      width: 100%;
-      max-width: 320px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 9999px;
-      overflow: hidden;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #ec4899, #a855f7);
-      border-radius: 9999px;
-      transition: width 1s ease;
-    }
-
-    /* Calendar */
-    .calendar-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .month-card {
-      animation: slide-up 0.6s ease-out forwards;
-    }
-
-    .month-card:nth-child(2) { animation-delay: 100ms; }
-    .month-card:nth-child(3) { animation-delay: 200ms; }
-
-    .month-glass {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.5rem;
-      transition: all 0.5s ease;
-    }
-
-    .month-glass:hover {
-      background: rgba(255, 255, 255, 0.07);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .month-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .month-indicator {
-      width: 4px;
-      height: 24px;
-      background: linear-gradient(180deg, #a855f7, #22d3ee);
-      border-radius: 9999px;
-    }
-
-    .month-name {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.7);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-    }
-
-    .days-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-    }
-
-    @media (min-width: 640px) {
-      .days-grid {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 0.75rem;
-      }
-    }
-
-    .day-box {
-      aspect-ratio: 1;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      background: rgba(255, 255, 255, 0.02);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: rgba(255, 255, 255, 0.2);
-      opacity: 0.5;
-      transition: all 0.3s ease;
-      user-select: none;
-      cursor: default;
-    }
-
-    @media (min-width: 768px) {
-      .day-box {
-        font-size: 1rem;
-      }
-    }
-
-    .day-box.edit-mode {
-      border-color: rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.6);
-      opacity: 0.9;
-      cursor: pointer;
-    }
-
-    .day-box.edit-mode:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .day-box.completed {
-      border-color: rgba(52, 211, 153, 0.6);
-      background: rgba(16, 185, 129, 0.1);
-      color: #34d399;
-      box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.3);
-      opacity: 1;
-    }
-
-    .day-box.non-school {
-      border-color: rgba(251, 191, 36, 0.6);
-      background: rgba(245, 158, 11, 0.1);
-      color: #fbbf24;
-      box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.3);
-      opacity: 1;
-    }
-
-    /* Edit Button */
-    .edit-btn {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.5s ease;
-      box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.2);
-      z-index: 50;
-    }
-
-    .edit-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .edit-btn.active {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: rgba(52, 211, 153, 0.5);
-      box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.3);
-      transform: scale(1.1);
-    }
-
-    .edit-btn svg {
-      width: 24px;
-      height: 24px;
-      color: rgba(255, 255, 255, 0.7);
-      transition: all 0.3s ease;
-    }
-
-    .edit-btn.active svg {
-      color: #34d399;
-      transform: rotate(12deg);
-    }
-
-    /* Back to menu button */
-    .back-menu-btn {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.5s ease;
-      box-shadow: 0 10px 40px -10px rgba(168, 85, 247, 0.2);
-      z-index: 50;
-    }
-
-    .back-menu-btn:hover {
-      transform: scale(1.05);
-      border-color: rgba(168, 85, 247, 0.5);
-    }
-
-    .back-menu-btn svg {
-      width: 24px;
-      height: 24px;
-      color: rgba(255, 255, 255, 0.7);
-      transition: all 0.3s ease;
-    }
-
-    /* ===================== */
-    /* APP 2: DASHBOARD      */
-    /* ===================== */
-    .dashboard-container {
-      min-height: 100vh;
-      padding: 1rem;
-      position: relative;
-      display: none;
-    }
-
-    @media (min-width: 768px) {
-      .dashboard-container {
-        padding: 2rem;
-      }
-    }
-
-    .dashboard-wrapper {
-      position: relative;
-      z-index: 10;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .dashboard-card {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.1);
-      transition: all 0.5s ease;
-      animation: fade-in 0.6s ease-out forwards;
-      margin-bottom: 1.5rem;
-    }
-
-    .dashboard-card:hover {
-      box-shadow: 0 25px 50px -12px rgba(34, 211, 238, 0.2);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    #custom-alert {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 25px;
-      border-radius: 12px;
-      color: white;
-      font-weight: bold;
-      z-index: 1000;
-      transition: 0.4s;
-      transform: translateX(150%);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-    }
-
-    .show-alert { transform: translateX(0) !important; }
-    .alert-success { background: rgba(16, 185, 129, 0.3); border: 1px solid rgba(52, 211, 153, 0.5); }
-    .alert-error { background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(248, 113, 113, 0.5); }
-
-    #daily-reminder {
-      background: rgba(251, 191, 36, 0.1);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-      color: #fbbf24;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .dashboard-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      background: linear-gradient(90deg, #22d3ee, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 0.1em;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.5);
-      letter-spacing: 0.1em;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .form-input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    .form-input:focus {
-      border-color: rgba(34, 211, 238, 0.5);
-      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
-    }
-
-    .form-btn {
-      position: relative;
-      width: 100%;
-      padding: 0.875rem 2rem;
-      background: linear-gradient(90deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.2));
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      cursor: pointer;
-      overflow: hidden;
-      transition: all 0.3s ease;
-      margin-top: 1rem;
-    }
-
-    .form-btn:hover {
-      border-color: rgba(34, 211, 238, 0.5);
-      box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.2);
-    }
-
-    .form-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, #22d3ee, #a855f7);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .form-btn:hover::after {
-      opacity: 0.2;
-    }
-
-    .form-btn span {
-      position: relative;
-      z-index: 1;
-    }
-
-    .divider {
-      margin: 2.5rem 0;
-      border: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.7);
-      letter-spacing: 0.1em;
-      margin-bottom: 1rem;
-    }
-
-    .filter-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 1.5rem;
-    }
-
-    .filter-select {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .filter-select option {
-      background: #0f172a;
-      color: white;
-    }
-
-    .filter-select:focus {
-      border-color: rgba(34, 211, 238, 0.5);
-    }
-
-    .filter-btn {
-      padding: 0.75rem 1.5rem;
-      background: rgba(168, 85, 247, 0.2);
-      border: 1px solid rgba(168, 85, 247, 0.3);
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .filter-btn:hover {
-      background: rgba(168, 85, 247, 0.3);
-      border-color: rgba(168, 85, 247, 0.5);
-    }
-
-    /* Stats Cards Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    @media (min-width: 768px) {
-      .stats-grid {
-        grid-template-columns: repeat(5, 1fr);
-      }
-    }
-
-    .stat-card {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.25rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      border-radius: 16px 16px 0 0;
-    }
-
-    .stat-card.subs::before { background: linear-gradient(90deg, #f43f5e, #ec4899); }
-    .stat-card.views::before { background: linear-gradient(90deg, #22d3ee, #06b6d4); }
-    .stat-card.money::before { background: linear-gradient(90deg, #10b981, #34d399); }
-    .stat-card.engagement::before { background: linear-gradient(90deg, #a855f7, #8b5cf6); }
-
-    .stat-label {
-      font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.5);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      animation: countUp 0.6s ease-out;
-    }
-
-    .stat-card.subs .stat-value { color: #f43f5e; }
-    .stat-card.views .stat-value { color: #22d3ee; }
-    .stat-card.money .stat-value { color: #10b981; }
-    .stat-card.engagement .stat-value { color: #a855f7; }
-
-    .stat-change {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-    }
-
-    .stat-change.positive { color: #34d399; }
-    .stat-change.negative { color: #f87171; }
-    .stat-change.neutral { color: rgba(255, 255, 255, 0.4); }
-
-    .stat-change svg {
-      width: 14px;
-      height: 14px;
-    }
-
-    /* Tooltip */
-    .tooltip {
-      position: relative;
-      cursor: help;
-    }
-
-    .tooltip .tooltip-text {
-      visibility: hidden;
-      opacity: 0;
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.95);
-      color: white;
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      z-index: 100;
-      transition: all 0.2s ease;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 8px;
-    }
-
-    .tooltip:hover .tooltip-text {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    /* Chart Modal */
-    .chart-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .chart-modal.active {
-      display: flex;
-    }
-
-    .chart-container {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 2rem;
-      max-width: 900px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .chart-close {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-
-    .chart-close:hover {
-      background: rgba(239, 68, 68, 0.3);
-      border-color: rgba(239, 68, 68, 0.5);
-    }
-
-    .chart-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.7);
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .legend-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .legend-item.active {
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .legend-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-
-    .legend-dot.subs { background: #f43f5e; }
-    .legend-dot.views48 { background: #22d3ee; }
-    .legend-dot.viewsDay { background: #06b6d4; }
-    .legend-dot.money { background: #10b981; }
-
-    .chart-area {
-      position: relative;
-      height: 300px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 12px;
-      padding: 1rem;
-      overflow-x: auto;
-    }
-
-    .chart-svg {
-      width: 100%;
-      height: 100%;
-      min-width: 600px;
-    }
-
-    /* Goals Section */
-    .goals-section {
-      margin-top: 1.5rem;
-    }
-
-    .goal-card {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .goal-card:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .goal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .goal-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    .goal-values {
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.5);
-    }
-
-    .goal-progress-bar {
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 9999px;
-      overflow: hidden;
-    }
-
-    .goal-progress-fill {
-      height: 100%;
-      border-radius: 9999px;
-      transition: width 1s ease;
-    }
-
-    .goal-progress-fill.subs { background: linear-gradient(90deg, #f43f5e, #ec4899); }
-    .goal-progress-fill.views { background: linear-gradient(90deg, #22d3ee, #06b6d4); }
-    .goal-progress-fill.money { background: linear-gradient(90deg, #10b981, #34d399); }
-
-    /* Estimator */
-    .estimator-card {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(168, 85, 247, 0.05);
-      border: 1px solid rgba(168, 85, 247, 0.2);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .estimator-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #a855f7;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .estimator-result {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.6;
-    }
-
-    .estimator-highlight {
-      color: #a855f7;
-      font-weight: 600;
-    }
-
-    /* Data Table */
-    .table-wrapper {
-      overflow-x: auto;
-      border-radius: 12px;
-    }
-
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 700px;
-    }
-
-    .data-table th {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 1rem;
-      font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.5);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .data-table td {
-      padding: 1rem;
-      text-align: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    .data-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .btn-edit-row {
-      background: none;
-      border: none;
-      color: #22d3ee;
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 0;
-      transition: all 0.3s ease;
-    }
-
-    .btn-edit-row:hover {
-      color: #a855f7;
-      transform: scale(1.2);
-    }
-
-    .btn-chart-row {
-      background: none;
-      border: none;
-      color: #a855f7;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0.25rem 0.5rem;
-      transition: all 0.3s ease;
-      margin-left: 0.5rem;
-    }
-
-    .btn-chart-row:hover {
-      color: #22d3ee;
-      transform: scale(1.1);
-    }
-
-    .change-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-left: 4px;
-    }
-
-    .change-indicator.positive {
-      color: #34d399;
-      background: rgba(52, 211, 153, 0.1);
-    }
-
-    .change-indicator.negative {
-      color: #f87171;
-      background: rgba(248, 113, 113, 0.1);
-    }
-
-    /* Hidden */
-    .hidden {
-      display: none !important;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruletas Interactivas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #00e676;
+        }
+
+        .nav-buttons {
+            margin-bottom: 30px;
+        }
+
+        .btn-nav {
+            background-color: #1f1f1f;
+            color: #fff;
+            border: 2px solid #333;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav.active {
+            background-color: #00e676;
+            color: #000;
+            border-color: #00e676;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+        }
+
+        .roulette-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .roulette-container.active {
+            display: flex;
+        }
+
+        /* Contenedor de la ruleta y la flecha */
+        .canvas-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        /* Flecha indicadora superior */
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #ff1744;
+            z-index: 10;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.6));
+        }
+
+        canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), 0 0 5px rgba(255, 255, 255, 0.1);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+        }
+
+        .btn-spin {
+            background-color: #ff1744;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 23, 68, 0.4);
+            transition: transform 0.1s, background-color 0.3s;
+        }
+
+        .btn-spin:hover {
+            background-color: #ff4569;
+        }
+
+        .btn-spin:active {
+            transform: scale(0.95);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 32px;
+            color: #00e676;
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+        }
+    </style>
 </head>
 <body>
-  <div class="bg-container">
-    <div class="orb orb-cyan"></div>
-    <div class="orb orb-purple"></div>
-    <div class="orb orb-pink"></div>
-  </div>
 
-  <!-- Alert -->
-  <div id="custom-alert"></div>
+    <h1>Panel de Ruletas</h1>
 
-  <!-- Main Menu Screen -->
-  <div id="menuScreen" class="menu-container">
-    <div class="menu-card">
-      <div class="menu-content">
-        <h1 class="menu-title">DASHBOARD</h1>
-        <div class="menu-buttons">
-          <button class="menu-btn" onclick="showLogin('calendario')">
-            <span>CALENDARIO</span>
-          </button>
-          <button class="menu-btn" onclick="showLogin('dashboard')">
-            <span>YOUTUBE</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Login Screen for Calendario -->
-  <div id="loginCalendario" class="login-container hidden">
-    <div class="login-card">
-      <div class="login-content">
-        <div class="icon-container">
-          <div class="icon-glow"></div>
-          <div class="icon-circle">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-          </div>
-        </div>
-
-        <h3 class="login-title">CALENDARIO</h3>
-
-        <input 
-          type="password" 
-          id="passwordCalendario" 
-          class="login-input" 
-          placeholder="Contrasena"
-          onkeydown="if(event.key==='Enter') loginCalendario()"
-        >
-
-        <button class="login-btn" onclick="loginCalendario()">
-          <span>ENTRAR</span>
-        </button>
-
-        <button class="back-btn" onclick="backToMenu()">Volver</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Login Screen for Dashboard -->
-  <div id="loginDashboard" class="login-container hidden">
-    <div class="login-card">
-      <div class="login-content">
-        <div class="icon-container">
-          <div class="icon-glow"></div>
-          <div class="icon-circle">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-          </div>
-        </div>
-
-        <h3 class="login-title">DASHBOARD</h3>
-
-        <input 
-          type="password" 
-          id="passwordDashboard" 
-          class="login-input" 
-          placeholder="Contrasena"
-          onkeydown="if(event.key==='Enter') loginDashboard()"
-        >
-
-        <button class="login-btn" onclick="loginDashboard()">
-          <span>ENTRAR</span>
-        </button>
-
-        <button class="back-btn" onclick="backToMenu()">Volver</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- APP 1: Calendario -->
-  <div id="appCalendario" class="app-container">
-    <div class="content-wrapper">
-      <!-- Counter -->
-      <div class="counter-card">
-        <div class="glass-card">
-          <div class="counter-content">
-            <div class="counter-glow">
-              <span id="daysCounter" class="counter-number">--</span>
-            </div>
-            <span class="counter-label">DIAS RESTANTES</span>
-            <div class="progress-container">
-              <div id="progressBar" class="progress-bar" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Calendar -->
-
-
-        <div class="month-card">
-          <div class="month-glass">
-            <h2 class="month-header">
-              <div class="month-indicator"></div>
-              <span class="month-name">Junio</span>
-            </h2>
-            <div id="junio" class="days-grid"></div>
-          </div>
-        </div>
-      </div>
+    <div class="nav-buttons">
+        <button class="btn-nav active" onclick="switchRoulette('subs')">Ruleta Subs</button>
+        <button class="btn-nav" onclick="switchRoulette('bits')">Ruleta Bits</button>
     </div>
 
-    <!-- Edit Button -->
-    <button id="editBtn" class="edit-btn">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-      </svg>
-    </button>
-
-    <!-- Back to Menu -->
-    <button class="back-menu-btn" onclick="backToMenu()">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- APP 2: Dashboard -->
-  <div id="appDashboard" class="dashboard-container">
-    <div class="dashboard-wrapper">
-      <!-- Stats Overview Cards -->
-      <div class="stats-grid" id="stats-overview">
-        <div class="stat-card subs tooltip">
-          <span class="tooltip-text">Total de suscriptores actuales</span>
-          <div class="stat-label">Subs Totales</div>
-          <div class="stat-value" id="stat-subs-total">--</div>
-          <div class="stat-change neutral" id="stat-subs-total-change">
-            <span>Sin datos previos</span>
-          </div>
+    <div id="container-subs" class="roulette-container active">
+        <div class="canvas-wrapper">
+            <div class="pointer"></div>
+            <canvas id="canvas-subs" width="450" height="450"></canvas>
         </div>
-        <div class="stat-card subs tooltip">
-          <span class="tooltip-text">Suscriptores ganados hoy</span>
-          <div class="stat-label">Subs Hoy</div>
-          <div class="stat-value" id="stat-subs-day">--</div>
-          <div class="stat-change neutral" id="stat-subs-day-change">
-            <span>Sin datos previos</span>
-          </div>
-        </div>
-        <div class="stat-card views tooltip">
-          <span class="tooltip-text">Views totales de hoy</span>
-          <div class="stat-label">Views Hoy</div>
-          <div class="stat-value" id="stat-views">--</div>
-          <div class="stat-change neutral" id="stat-views-change">
-            <span>Sin datos previos</span>
-          </div>
-        </div>
-        <div class="stat-card money tooltip">
-          <span class="tooltip-text">Dinero generado hoy</span>
-          <div class="stat-label">Dinero Hoy</div>
-          <div class="stat-value" id="stat-money">--</div>
-          <div class="stat-change neutral" id="stat-money-change">
-            <span>Sin datos previos</span>
-          </div>
-        </div>
-        <div class="stat-card engagement tooltip">
-          <span class="tooltip-text">Porcentaje de retencion del video (swipe away rate invertido)</span>
-          <div class="stat-label">Swipe Ratio</div>
-          <div class="stat-value" id="stat-swipe">--%</div>
-          <div class="stat-change neutral" id="stat-swipe-change">
-            <span>Sin datos previos</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Form Card -->
-      <div class="dashboard-card">
-        <div id="daily-reminder" class="hidden">Son las 11:00+ y no has apuntado los datos de hoy.</div>
-
-        <div id="form-container">
-          <h3 id="form-title" class="dashboard-title">Nueva Entrada</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Fecha</label>
-              <input type="date" id="date" class="form-input">
-            </div>
-            <div class="form-group">
-              <label>Subs Totales</label>
-              <input type="number" id="subsTotal" class="form-input" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label>Subs Hoy</label>
-              <input type="number" id="subsDay" class="form-input" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label>Views 48h</label>
-              <input type="number" id="views48h" class="form-input" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label>Views Hoy</label>
-              <input type="number" id="viewsDay" class="form-input" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label>Dinero</label>
-              <input type="number" step="0.01" id="money" class="form-input" placeholder="0.00">
-            </div>
-            <div class="form-group">
-              <label>Swipe Ratio %</label>
-              <input type="number" step="0.1" id="swipeRatio" class="form-input" placeholder="0">
-            </div>
-          </div>
-          <button onclick="saveData()" id="btn-save" class="form-btn">
-            <span>Guardar Datos</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Goals Card -->
-      <div class="dashboard-card">
-        <h3 class="dashboard-title">Logros y Metas</h3>
-        <div class="goals-section" id="goals-container">
-          <div class="goal-card">
-            <div class="goal-header">
-              <span class="goal-title">500K Suscriptores</span>
-              <span class="goal-values" id="goal-500k-text">0 / 500,000</span>
-            </div>
-            <div class="goal-progress-bar">
-              <div class="goal-progress-fill subs" id="goal-500k-bar" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="goal-card">
-            <div class="goal-header">
-              <span class="goal-title">1M Suscriptores</span>
-              <span class="goal-values" id="goal-1m-text">0 / 1,000,000</span>
-            </div>
-            <div class="goal-progress-bar">
-              <div class="goal-progress-fill subs" id="goal-1m-bar" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="goal-card">
-            <div class="goal-header">
-              <span class="goal-title">100 EUR Mensuales</span>
-              <span class="goal-values" id="goal-100eur-text">0 / 100 EUR</span>
-            </div>
-            <div class="goal-progress-bar">
-              <div class="goal-progress-fill money" id="goal-100eur-bar" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Estimator -->
-        <div class="estimator-card">
-          <div class="estimator-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
-            </svg>
-            Calculadora de Estimaciones
-          </div>
-          <div class="estimator-result" id="estimator-result">
-            Cargando datos para calcular estimaciones...
-          </div>
-        </div>
-      </div>
-
-      <!-- History Card -->
-      <div class="dashboard-card">
-        <h3 class="section-title">Historial Mensual</h3>
-        <div class="filter-row">
-          <select id="month-select" class="filter-select">
-            <option value="01">Enero</option>
-            <option value="02">Febrero</option>
-            <option value="03">Marzo</option>
-            <option value="04">Abril</option>
-            <option value="05">Mayo</option>
-            <option value="06">Junio</option>
-            <option value="07">Julio</option>
-            <option value="08">Agosto</option>
-            <option value="09">Septiembre</option>
-            <option value="10">Octubre</option>
-            <option value="11">Noviembre</option>
-            <option value="12">Diciembre</option>
-          </select>
-          <button onclick="loadSummary()" class="filter-btn">Ver</button>
-          <button onclick="openChart()" class="filter-btn" style="background: rgba(34, 211, 238, 0.2); border-color: rgba(34, 211, 238, 0.3);">
-            Ver Grafico
-          </button>
-        </div>
-
-        <div id="results" class="hidden">
-          <div class="stats-grid" id="totals-box"></div>
-          <div class="table-wrapper">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Dia</th>
-                  <th>Subs Total</th>
-                  <th>Subs Hoy</th>
-                  <th>Vistas 48h</th>
-                  <th>Vistas Hoy</th>
-                  <th>Dinero</th>
-                  <th>Swipe %</th>
-                  <th>Accion</th>
-                </tr>
-              </thead>
-              <tbody id="table-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+        <button class="btn-spin" onclick="spin('subs')">Girar Subs</button>
+        <div id="result-subs" class="result"></div>
     </div>
 
-    <!-- Back to Menu -->
-    <button class="back-menu-btn" onclick="backToMenu()">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- Chart Modal -->
-  <div id="chartModal" class="chart-modal">
-    <div class="chart-container">
-      <div class="chart-header">
-        <h3 class="dashboard-title" id="chart-title">Grafico Mensual</h3>
-        <button class="chart-close" onclick="closeChart()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-      <div class="chart-legend" id="chart-legend">
-        <div class="legend-item active" data-metric="subs" onclick="toggleMetric('subs')">
-          <div class="legend-dot subs"></div>
-          <span>Suscriptores</span>
+    <div id="container-bits" class="roulette-container">
+        <div class="canvas-wrapper">
+            <div class="pointer"></div>
+            <canvas id="canvas-bits" width="450" height="450"></canvas>
         </div>
-        <div class="legend-item active" data-metric="views48" onclick="toggleMetric('views48')">
-          <div class="legend-dot views48"></div>
-          <span>Views 48h</span>
-        </div>
-        <div class="legend-item active" data-metric="viewsDay" onclick="toggleMetric('viewsDay')">
-          <div class="legend-dot viewsDay"></div>
-          <span>Views Hoy</span>
-        </div>
-        <div class="legend-item active" data-metric="money" onclick="toggleMetric('money')">
-          <div class="legend-dot money"></div>
-          <span>Dinero</span>
-        </div>
-      </div>
-      <div class="chart-area">
-        <svg id="chart-svg" class="chart-svg" viewBox="0 0 800 250"></svg>
-      </div>
+        <button class="btn-spin" onclick="spin('bits')">Girar Bits</button>
+        <div id="result-bits" class="result"></div>
     </div>
-  </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-  <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDHhGmSUS1MpNEAZaI_G365uWLGEZ3zlr4",
-      authDomain: "imperio-zaw.firebaseapp.com",
-      databaseURL: "https://imperio-zaw-default-rtdb.firebaseio.com",
-      projectId: "imperio-zaw",
-      storageBucket: "imperio-zaw.firebasestorage.app",
-      messagingSenderId: "281331374578",
-      appId: "1:281331374578:web:2db167949f367d87c2f36b",
-      measurementId: "G-013E05RNCQ"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // Chart state
-    let chartData = [];
-    let visibleMetrics = { subs: true, views48: true, viewsDay: true, money: true };
-
-    // =====================
-    // NAVIGATION
-    // =====================
-    function showLogin(app) {
-      document.getElementById('menuScreen').classList.add('hidden');
-      if (app === 'calendario') {
-        document.getElementById('loginCalendario').classList.remove('hidden');
-      } else {
-        document.getElementById('loginDashboard').classList.remove('hidden');
-      }
-    }
-
-    function backToMenu() {
-      document.getElementById('menuScreen').classList.remove('hidden');
-      document.getElementById('loginCalendario').classList.add('hidden');
-      document.getElementById('loginDashboard').classList.add('hidden');
-      document.getElementById('appCalendario').style.display = 'none';
-      document.getElementById('appDashboard').style.display = 'none';
-    }
-
-    // =====================
-    // APP 1: CALENDARIO
-    // =====================
-    const START_DATE = new Date(2026, 3, 6);
-    const END_DATE = new Date(2026, 5, 19);
-
-    let editActive = false;
-    let cloudData = {};
-    let pressTimer = null;
-    let longPressTriggered = false;
-
-    const editBtn = document.getElementById('editBtn');
-    const daysCounter = document.getElementById('daysCounter');
-    const progressBar = document.getElementById('progressBar');
-
-    function getValidDayIds() {
-      const ids = [];
-      const months = [3, 4, 5];
-      months.forEach(m => {
-        const d = new Date(2026, m, 1);
-        while (d.getMonth() === m) {
-          if (d >= START_DATE && d <= END_DATE) {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            ids.push(`${year}-${month}-${day}`);
-          }
-          d.setDate(d.getDate() + 1);
-        }
-      });
-      return ids;
-    }
-
-    const validDayIds = getValidDayIds();
-
-    function loginCalendario() {
-      if (document.getElementById('passwordCalendario').value === 'final') {
-        document.getElementById('loginCalendario').classList.add('hidden');
-        document.getElementById('appCalendario').style.display = 'block';
-        initCalendar();
-        listenToDataCalendario();
-      } else {
-        notify('Contrasena incorrecta', true);
-      }
-    }
-
-    editBtn.addEventListener('click', () => {
-      editActive = !editActive;
-      editBtn.classList.toggle('active', editActive);
-      updateDayStyles();
-    });
-
-    function initCalendar() {
-      const containers = {
-        3: document.getElementById('abril'),
-        4: document.getElementById('mayo'),
-        5: document.getElementById('junio')
-      };
-
-      validDayIds.forEach(id => {
-        const monthNum = parseInt(id.split('-')[1], 10) - 1;
-        const dayNum = parseInt(id.split('-')[2], 10);
-        const container = containers[monthNum];
-
-        if (container) {
-          const dayBox = document.createElement('div');
-          dayBox.className = 'day-box';
-          dayBox.id = `day-${id}`;
-          dayBox.textContent = dayNum;
-          dayBox.dataset.id = id;
-
-          dayBox.addEventListener('mousedown', () => startAction(id));
-          dayBox.addEventListener('mouseup', () => endAction(id));
-          dayBox.addEventListener('mouseleave', cancelAction);
-          dayBox.addEventListener('touchstart', (e) => { e.preventDefault(); startAction(id); });
-          dayBox.addEventListener('touchend', (e) => { e.preventDefault(); endAction(id); });
-
-          container.appendChild(dayBox);
-        }
-      });
-    }
-
-    function startAction(id) {
-      if (!editActive) return;
-      longPressTriggered = false;
-      pressTimer = setTimeout(() => {
-        longPressTriggered = true;
-        saveCalendario(id, 'non-school');
-      }, 600);
-    }
-
-    function endAction(id) {
-      if (pressTimer) clearTimeout(pressTimer);
-      if (!longPressTriggered && editActive) {
-        saveCalendario(id, 'completed');
-      }
-    }
-
-    function cancelAction() {
-      if (pressTimer) clearTimeout(pressTimer);
-    }
-
-    function saveCalendario(id, target) {
-      const current = cloudData[id];
-      let newState;
-
-      if (current === target) {
-        newState = null;
-      } else {
-        newState = target;
-      }
-
-      db.ref('days/' + id).set(newState);
-    }
-
-    function listenToDataCalendario() {
-      db.ref('days').on('value', (snapshot) => {
-        cloudData = snapshot.val() || {};
-        updateDayStyles();
-        updateCounter();
-      });
-    }
-
-    function updateDayStyles() {
-      validDayIds.forEach(id => {
-        const dayBox = document.getElementById(`day-${id}`);
-        if (!dayBox) return;
-
-        dayBox.classList.remove('completed', 'non-school', 'edit-mode');
-
-        const state = cloudData[id];
-        if (state === 'completed') {
-          dayBox.classList.add('completed');
-        } else if (state === 'non-school') {
-          dayBox.classList.add('non-school');
-        }
-
-        if (editActive && !state) {
-          dayBox.classList.add('edit-mode');
-        }
-      });
-    }
-
-    function updateCounter() {
-      let remaining = 0;
-      validDayIds.forEach(id => {
-        const state = cloudData[id];
-        if (state !== 'completed' && state !== 'non-school') {
-          remaining++;
-        }
-      });
-
-      animateCounter(daysCounter, remaining);
-
-      const total = validDayIds.length;
-      const done = total - remaining;
-      const pct = total > 0 ? (done / total) * 100 : 0;
-      progressBar.style.width = pct + '%';
-    }
-
-    // =====================
-    // APP 2: DASHBOARD
-    // =====================
-    function notify(msg, isError = false) {
-      const el = document.getElementById('custom-alert');
-      el.innerText = msg;
-      el.className = isError ? 'alert-error show-alert' : 'alert-success show-alert';
-      setTimeout(() => el.classList.remove('show-alert'), 3000);
-    }
-
-    function formatearDashboard(num, esMoneda = false) {
-      if (num === null || num === undefined) return "0";
-      const f = new Intl.NumberFormat('de-DE', {
-        minimumFractionDigits: esMoneda ? 2 : 0,
-        maximumFractionDigits: 2
-      }).format(num);
-      return esMoneda ? f + " EUR" : f;
-    }
-
-    // Animated counter
-    function animateCounter(element, target) {
-      const current = parseInt(element.textContent) || 0;
-      if (current === target) return;
-      
-      const duration = 600;
-      const start = performance.now();
-      
-      function update(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const value = Math.round(current + (target - current) * eased);
-        element.textContent = value;
-        
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        }
-      }
-      
-      requestAnimationFrame(update);
-    }
-
-    function animateCounterFormatted(element, target, isMoney = false) {
-      const text = element.textContent.replace(/[^\d,.-]/g, '').replace('.', '').replace(',', '.');
-      const current = parseFloat(text) || 0;
-      if (current === target) return;
-      
-      const duration = 600;
-      const start = performance.now();
-      
-      function update(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const value = current + (target - current) * eased;
-        element.textContent = formatearDashboard(isMoney ? value : Math.round(value), isMoney);
-        
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        }
-      }
-      
-      requestAnimationFrame(update);
-    }
-
-    function loginDashboard() {
-      if (document.getElementById('passwordDashboard').value === 'genzaw') {
-        document.getElementById('loginDashboard').classList.add('hidden');
-        document.getElementById('appDashboard').style.display = 'block';
-        document.getElementById('date').valueAsDate = new Date();
-        checkReminder();
-        loadTodayStats();
-        loadGoals();
-        calculateEstimations();
-      } else {
-        notify('Contrasena incorrecta', true);
-      }
-    }
-
-    function checkReminder() {
-      const h = new Date().getHours();
-      const t = new Date().toISOString().split('T')[0];
-      if (h >= 11) {
-        db.ref('stats/' + t).once('value', (s) => {
-          if (!s.exists()) document.getElementById('daily-reminder').classList.remove('hidden');
-        });
-      }
-    }
-
-    function loadTodayStats() {
-      const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      
-      // Get last month for comparison
-      const lastMonth = new Date();
-      lastMonth.setMonth(lastMonth.getMonth() - 1);
-      const lastMonthStr = lastMonth.toISOString().split('T')[0].substring(0, 7);
-      
-      Promise.all([
-        db.ref('stats/' + today).once('value'),
-        db.ref('stats/' + yesterday).once('value'),
-        db.ref('stats').orderByKey().startAt(lastMonthStr + '-01').endAt(lastMonthStr + '-31').once('value')
-      ]).then(([todaySnap, yesterdaySnap, lastMonthSnap]) => {
-        const todayData = todaySnap.val() || {};
-        const yesterdayData = yesterdaySnap.val() || {};
-        
-        // Calculate last month averages
-        let lastMonthSubsTotal = 0, lastMonthSubsDay = 0, lastMonthViews = 0, lastMonthMoney = 0, lastMonthSwipe = 0, lastMonthCount = 0;
-        lastMonthSnap.forEach(child => {
-          const d = child.val();
-          lastMonthSubsTotal = d.subsTotal || d.subs || lastMonthSubsTotal;
-          lastMonthSubsDay += d.subsDay || 0;
-          lastMonthViews += d.viewsDay || 0;
-          lastMonthMoney += d.money || 0;
-          lastMonthSwipe += d.swipeRatio || 0;
-          lastMonthCount++;
-        });
-        
-        const avgLastMonthSubsDay = lastMonthCount > 0 ? lastMonthSubsDay / lastMonthCount : 0;
-        const avgLastMonthViews = lastMonthCount > 0 ? lastMonthViews / lastMonthCount : 0;
-        const avgLastMonthMoney = lastMonthCount > 0 ? lastMonthMoney / lastMonthCount : 0;
-        const avgLastMonthSwipe = lastMonthCount > 0 ? lastMonthSwipe / lastMonthCount : 0;
-
-        // Update stat cards with animation
-        updateStatCard('subs-total', todayData.subsTotal || todayData.subs || 0, yesterdayData.subsTotal || yesterdayData.subs || 0, lastMonthSubsTotal);
-        updateStatCard('subs-day', todayData.subsDay || 0, yesterdayData.subsDay || 0, avgLastMonthSubsDay);
-        updateStatCard('views', todayData.viewsDay || 0, yesterdayData.viewsDay || 0, avgLastMonthViews);
-        updateStatCard('money', todayData.money || 0, yesterdayData.money || 0, avgLastMonthMoney, true);
-        updateStatCard('swipe', todayData.swipeRatio || 0, yesterdayData.swipeRatio || 0, avgLastMonthSwipe, false, true);
-      });
-    }
-
-    function updateStatCard(type, current, yesterday, lastMonth, isMoney = false, isPercent = false) {
-      const valueEl = document.getElementById(`stat-${type}`);
-      const changeEl = document.getElementById(`stat-${type}-change`);
-      
-      // Animate value
-      if (isPercent) {
-        valueEl.textContent = current + '%';
-      } else {
-        animateCounterFormatted(valueEl, current, isMoney);
-      }
-      
-      // Calculate changes
-      const dayChange = yesterday > 0 ? ((current - yesterday) / yesterday * 100) : 0;
-      const monthChange = lastMonth > 0 ? ((current - lastMonth) / lastMonth * 100) : 0;
-      
-      let changeHTML = '';
-      if (yesterday > 0 || lastMonth > 0) {
-        const dayClass = dayChange >= 0 ? 'positive' : 'negative';
-        const dayArrow = dayChange >= 0 ? 
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l5-5 5 5M7 7l5 5 5-5"/></svg>' :
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 17l5-5 5-5"/></svg>';
-        
-        changeHTML = `<span class="${dayClass}">${dayArrow} ${Math.abs(dayChange).toFixed(1)}% vs ayer</span>`;
-        
-        if (lastMonth > 0) {
-          const monthClass = monthChange >= 0 ? 'positive' : 'negative';
-          changeHTML += ` <span class="${monthClass}">(${monthChange >= 0 ? '+' : ''}${monthChange.toFixed(1)}% vs mes)</span>`;
-        }
-        
-        changeEl.className = `stat-change ${dayChange >= 0 ? 'positive' : 'negative'}`;
-      } else {
-        changeHTML = '<span>Sin datos previos</span>';
-        changeEl.className = 'stat-change neutral';
-      }
-      
-      changeEl.innerHTML = changeHTML;
-    }
-
-    function loadGoals() {
-      // Get latest subscriber count (use subsTotal)
-      db.ref('stats').orderByKey().limitToLast(1).once('value', (snap) => {
-        let latestSubs = 0;
-        snap.forEach(child => {
-          const d = child.val();
-          latestSubs = d.subsTotal || d.subs || 0;
-        });
-        
-        // Update goal bars (without 100k)
-        updateGoal('500k', latestSubs, 500000);
-        updateGoal('1m', latestSubs, 1000000);
-      });
-      
-      // Get current month money
-      const currentMonth = new Date().toISOString().split('T')[0].substring(0, 7);
-      db.ref('stats').orderByKey().startAt(currentMonth + '-01').endAt(currentMonth + '-31').once('value', (snap) => {
-        let totalMoney = 0;
-        snap.forEach(child => {
-          totalMoney += child.val().money || 0;
-        });
-        updateGoal('100eur', totalMoney, 100, true);
-      });
-    }
-
-    function updateGoal(id, current, target, isMoney = false) {
-      const barEl = document.getElementById(`goal-${id}-bar`);
-      const textEl = document.getElementById(`goal-${id}-text`);
-      
-      const pct = Math.min((current / target) * 100, 100);
-      barEl.style.width = pct + '%';
-      
-      if (isMoney) {
-        textEl.textContent = `${formatearDashboard(current, true)} / ${formatearDashboard(target, true)}`;
-      } else {
-        textEl.textContent = `${formatearDashboard(current)} / ${formatearDashboard(target)}`;
-      }
-    }
-
-    function calculateEstimations() {
-      // Get last 30 days of data
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
-      
-      db.ref('stats').orderByKey().startAt(thirtyDaysAgo).once('value', (snap) => {
-        const data = [];
-        snap.forEach(child => {
-          data.push({ date: child.key, ...child.val() });
-        });
-        
-        if (data.length < 2) {
-          document.getElementById('estimator-result').innerHTML = 'Necesitas al menos 2 dias de datos para calcular estimaciones.';
-          return;
-        }
-        
-        // Calculate daily subscriber growth (use subsTotal)
-        const firstSubs = data[0].subsTotal || data[0].subs || 0;
-        const lastSubs = data[data.length - 1].subsTotal || data[data.length - 1].subs || 0;
-        const days = data.length;
-        const dailyGrowth = (lastSubs - firstSubs) / days;
-        
-        if (dailyGrowth <= 0) {
-          document.getElementById('estimator-result').innerHTML = 'Tu crecimiento actual es negativo o nulo. Sigue subiendo contenido para ver proyecciones.';
-          return;
-        }
-        
-        // Calculate days to reach milestones
-        const to100k = Math.ceil((100000 - lastSubs) / dailyGrowth);
-        const to500k = Math.ceil((500000 - lastSubs) / dailyGrowth);
-        const to1m = Math.ceil((1000000 - lastSubs) / dailyGrowth);
-        
-        // Calculate dates
-        const date100k = new Date(Date.now() + to100k * 86400000);
-        const date500k = new Date(Date.now() + to500k * 86400000);
-        const date1m = new Date(Date.now() + to1m * 86400000);
-        
-        const formatDate = (d) => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-        
-        let html = `
-          <p>Basado en tu crecimiento promedio de <span class="estimator-highlight">${formatearDashboard(Math.round(dailyGrowth))} subs/dia</span>:</p>
-          <br>
-        `;
-        
-        if (lastSubs < 500000) {
-          html += `<p>500K suscriptores: <span class="estimator-highlight">${formatDate(date500k)}</span> (${to500k} dias)</p>`;
-        }
-        if (lastSubs < 1000000) {
-          html += `<p>1M suscriptores: <span class="estimator-highlight">${formatDate(date1m)}</span> (${to1m} dias)</p>`;
-        }
-        
-        document.getElementById('estimator-result').innerHTML = html;
-      });
-    }
-
-    function prepareEdit(fecha, subsTotal, subsDay, v48, vDay, money, swipe) {
-      document.getElementById('date').value = fecha;
-      document.getElementById('subsTotal').value = subsTotal;
-      document.getElementById('subsDay').value = subsDay;
-      document.getElementById('views48h').value = v48;
-      document.getElementById('viewsDay').value = vDay;
-      document.getElementById('money').value = money;
-      document.getElementById('swipeRatio').value = swipe || 0;
-
-      document.getElementById('form-title').innerText = "Editando dia: " + fecha.split('-')[2];
-      document.getElementById('btn-save').innerHTML = "<span>Actualizar Datos</span>";
-      document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
-      notify("Datos cargados para editar");
-    }
-
-    function saveData() {
-      const fecha = document.getElementById('date').value;
-      if (!fecha) return notify("Selecciona una fecha", true);
-
-      const data = {
-        subsTotal: parseInt(document.getElementById('subsTotal').value) || 0,
-        subsDay: parseInt(document.getElementById('subsDay').value) || 0,
-        views48h: parseInt(document.getElementById('views48h').value) || 0,
-        viewsDay: parseInt(document.getElementById('viewsDay').value) || 0,
-        money: parseFloat(document.getElementById('money').value) || 0,
-        swipeRatio: parseFloat(document.getElementById('swipeRatio').value) || 0
-      };
-
-      db.ref('stats/' + fecha).set(data)
-        .then(() => {
-          notify("Datos actualizados!");
-          document.getElementById('daily-reminder').classList.add('hidden');
-          document.getElementById('form-title').innerText = "Nueva Entrada";
-          document.getElementById('btn-save').innerHTML = "<span>Guardar Datos</span>";
-          ["subsTotal", "subsDay", "views48h", "viewsDay", "money", "swipeRatio"].forEach(id => document.getElementById(id).value = "");
-          loadSummary();
-          loadTodayStats();
-          loadGoals();
-          calculateEstimations();
-        })
-        .catch(() => notify("Error de conexion", true));
-    }
-
-    function loadSummary() {
-      const mes = document.getElementById('month-select').value;
-      const year = new Date().getFullYear();
-
-      db.ref('stats').orderByKey().startAt(`${year}-${mes}-01`).endAt(`${year}-${mes}-31`)
-        .once('value', (snapshot) => {
-          const tbody = document.getElementById('table-body');
-          const resDiv = document.getElementById('results');
-          tbody.innerHTML = "";
-          resDiv.classList.remove('hidden');
-
-          let totalM = 0, totalV = 0, totalV48 = 0;
-          let prevData = null;
-          chartData = [];
-
-          snapshot.forEach((child) => {
-            const d = child.val();
-            const fechaRaw = child.key;
-            totalM += d.money || 0;
-            totalV += d.viewsDay || 0;
-            totalV48 += d.views48h || 0;
-            
-            chartData.push({ date: fechaRaw, ...d });
-
-            // Calculate changes vs previous day
-            let subsTotalChange = '', subsDayChange = '', viewsChange = '', moneyChange = '';
-            if (prevData) {
-              const subsTotalDiff = (d.subsTotal || d.subs || 0) - (prevData.subsTotal || prevData.subs || 0);
-              const subsDayDiff = (d.subsDay || 0) - (prevData.subsDay || 0);
-              const viewsDiff = (d.viewsDay || 0) - (prevData.viewsDay || 0);
-              const moneyDiff = (d.money || 0) - (prevData.money || 0);
-              
-              if (subsTotalDiff !== 0) {
-                subsTotalChange = `<span class="change-indicator ${subsTotalDiff >= 0 ? 'positive' : 'negative'}">${subsTotalDiff >= 0 ? '+' : ''}${formatearDashboard(subsTotalDiff)}</span>`;
-              }
-              if (subsDayDiff !== 0) {
-                subsDayChange = `<span class="change-indicator ${subsDayDiff >= 0 ? 'positive' : 'negative'}">${subsDayDiff >= 0 ? '+' : ''}${formatearDashboard(subsDayDiff)}</span>`;
-              }
-              if (viewsDiff !== 0) {
-                viewsChange = `<span class="change-indicator ${viewsDiff >= 0 ? 'positive' : 'negative'}">${viewsDiff >= 0 ? '+' : ''}${formatearDashboard(viewsDiff)}</span>`;
-              }
-              if (moneyDiff !== 0) {
-                moneyChange = `<span class="change-indicator ${moneyDiff >= 0 ? 'positive' : 'negative'}">${moneyDiff >= 0 ? '+' : ''}${moneyDiff.toFixed(2)}</span>`;
-              }
+    <script>
+        // Configuración y estado de las ruletas
+        const config = {
+            subs: {
+                canvasId: 'canvas-subs',
+                resultId: 'result-subs',
+                totalSlices: 24,
+                items: [],
+                currentRotation: 0,
+                isSpinning: false
+            },
+            bits: {
+                canvasId: 'canvas-bits',
+                resultId: 'result-bits',
+                totalSlices: 50,
+                items: [],
+                currentRotation: 0,
+                isSpinning: false
             }
-            prevData = d;
+        };
 
-            tbody.innerHTML += `
-              <tr>
-                <td>${fechaRaw.split('-')[2]}</td>
-                <td>${formatearDashboard(d.subsTotal || d.subs)}${subsTotalChange}</td>
-                <td>${formatearDashboard(d.subsDay || 0)}${subsDayChange}</td>
-                <td>${formatearDashboard(d.views48h)}</td>
-                <td>${formatearDashboard(d.viewsDay)}${viewsChange}</td>
-                <td>${formatearDashboard(d.money, true)}${moneyChange}</td>
-                <td>${d.swipeRatio || 0}%</td>
-                <td>
-                  <button class="btn-edit-row" onclick="prepareEdit('${fechaRaw}', ${d.subsTotal || d.subs || 0}, ${d.subsDay || 0}, ${d.views48h}, ${d.viewsDay}, ${d.money}, ${d.swipeRatio || 0})">&#9998;</button>
-                </td>
-              </tr>`;
-          });
+        // Colores alternantes para un diseño limpio y vistoso
+        const colors = ['#1e1b4b', '#311042', '#112240', '#0a3622', '#3d0a14', '#2d3748'];
 
-          document.getElementById('totals-box').innerHTML = `
-            <div class="stat-card money tooltip">
-              <span class="tooltip-text">Total acumulado del mes</span>
-              <div class="stat-label">Dinero Mes</div>
-              <div class="stat-value">${formatearDashboard(totalM, true)}</div>
-            </div>
-            <div class="stat-card views tooltip">
-              <span class="tooltip-text">Suma de todas las views diarias</span>
-              <div class="stat-label">Views Totales</div>
-              <div class="stat-value">${formatearDashboard(totalV)}</div>
-            </div>
-            <div class="stat-card views tooltip">
-              <span class="tooltip-text">Suma de views 48h</span>
-              <div class="stat-label">Views 48h Total</div>
-              <div class="stat-value">${formatearDashboard(totalV48)}</div>
-            </div>
-            <div class="stat-card subs tooltip">
-              <span class="tooltip-text">Numero de dias con datos</span>
-              <div class="stat-label">Dias Registrados</div>
-              <div class="stat-value">${chartData.length}</div>
-            </div>
-          `;
-        });
-    }
+        // Generar datos iniciales
+        function initData() {
+            // 1. Ruleta Subs: Números del 2 al 12 desordenados y repetidos hasta tener 24 gajos
+            const subsPool = [];
+            while(subsPool.length < config.subs.totalSlices) {
+                const block = Array.from({length: 11}, (_, i) => i + 2);
+                block.sort(() => Math.random() - 0.5);
+                subsPool.push(...block);
+            }
+            config.subs.items = subsPool.slice(0, config.subs.totalSlices);
 
-    // Chart functions
-    function openChart() {
-      if (chartData.length === 0) {
-        notify('Primero carga datos de un mes', true);
-        return;
-      }
-      
-      const mes = document.getElementById('month-select').value;
-      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-      document.getElementById('chart-title').textContent = `Grafico - ${monthNames[parseInt(mes) - 1]}`;
-      
-      document.getElementById('chartModal').classList.add('active');
-      renderChart();
-    }
+            // 2. Ruleta Bits: 50 gajos totales, donde el 30% (15 gajos) son 0 de forma fija
+            const bitsPool = [];
+            const totalBitsSlices = config.bits.totalSlices;
+            const zeroSlicesCount = Math.floor(totalBitsSlices * 0.30); // 50 * 0.30 = 15 gajos
 
-    function closeChart() {
-      document.getElementById('chartModal').classList.remove('active');
-    }
+            // Añadir los gajos con valor 0
+            for (let i = 0; i < zeroSlicesCount; i++) {
+                bitsPool.push(0);
+            }
 
-    function toggleMetric(metric) {
-      visibleMetrics[metric] = !visibleMetrics[metric];
-      const legendItem = document.querySelector(`[data-metric="${metric}"]`);
-      legendItem.classList.toggle('active', visibleMetrics[metric]);
-      renderChart();
-    }
+            // Añadir el resto de gajos con valores entre 500 y 8000 (terminados en 0)
+            const remainingSlices = totalBitsSlices - zeroSlicesCount;
+            for (let i = 0; i < remainingSlices; i++) {
+                const min = 50;
+                const max = 800;
+                const randomValue = (Math.floor(Math.random() * (max - min + 1)) + min) * 10;
+                bitsPool.push(randomValue);
+            }
 
-    function renderChart() {
-      const svg = document.getElementById('chart-svg');
-      const width = 800;
-      const height = 250;
-      const padding = { top: 20, right: 20, bottom: 40, left: 60 };
-      
-      const chartWidth = width - padding.left - padding.right;
-      const chartHeight = height - padding.top - padding.bottom;
-      
-      // Find max values for scaling
-      let maxSubs = 0, maxViews = 0, maxMoney = 0;
-      chartData.forEach(d => {
-        const subs = d.subsTotal || d.subs || 0;
-        if (subs > maxSubs) maxSubs = subs;
-        if (d.views48h > maxViews) maxViews = d.views48h;
-        if (d.viewsDay > maxViews) maxViews = d.viewsDay;
-        if (d.money > maxMoney) maxMoney = d.money;
-      });
-      
-      const xStep = chartWidth / (chartData.length - 1 || 1);
-      
-      let svgContent = '';
-      
-      // Grid lines
-      for (let i = 0; i <= 4; i++) {
-        const y = padding.top + (chartHeight / 4) * i;
-        svgContent += `<line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>`;
-      }
-      
-      // X-axis labels
-      chartData.forEach((d, i) => {
-        const x = padding.left + i * xStep;
-        const day = d.date.split('-')[2];
-        svgContent += `<text x="${x}" y="${height - 10}" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="middle">${day}</text>`;
-      });
-      
-      // Draw lines for each metric
-      const colors = {
-        subs: '#f43f5e',
-        views48: '#22d3ee',
-        viewsDay: '#06b6d4',
-        money: '#10b981'
-      };
-      
-      const drawLine = (data, key, max, color) => {
-        if (!visibleMetrics[key] || max === 0) return '';
-        
-        let path = '';
-        let dots = '';
-        
-        data.forEach((d, i) => {
-          const x = padding.left + i * xStep;
-          let value = 0;
-          if (key === 'subs') value = d.subsTotal || d.subs || 0;
-          else if (key === 'views48') value = d.views48h || 0;
-          else if (key === 'viewsDay') value = d.viewsDay || 0;
-          else value = d[key] || 0;
-          const y = padding.top + chartHeight - (value / max) * chartHeight;
-          
-          if (i === 0) {
-            path += `M ${x} ${y}`;
-          } else {
-            path += ` L ${x} ${y}`;
-          }
-          
-          dots += `<circle cx="${x}" cy="${y}" r="4" fill="${color}" opacity="0.8"/>`;
-        });
-        
-        return `<path d="${path}" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/>${dots}`;
-      };
-      
-      svgContent += drawLine(chartData, 'subs', maxSubs, colors.subs);
-      svgContent += drawLine(chartData, 'views48', maxViews, colors.views48);
-      svgContent += drawLine(chartData, 'viewsDay', maxViews, colors.viewsDay);
-      svgContent += drawLine(chartData, 'money', maxMoney, colors.money);
-      
-      svg.innerHTML = svgContent;
-    }
+            // Desordenar por completo la lista para mezclar los ceros de forma aleatoria por la ruleta
+            bitsPool.sort(() => Math.random() - 0.5);
+            config.bits.items = bitsPool;
+        }
 
-    // Close modal on background click
-    document.getElementById('chartModal').addEventListener('click', (e) => {
-      if (e.target.id === 'chartModal') {
-        closeChart();
-      }
-    });
-  </script>
+        // Dibujar la ruleta en el Canvas correspondiente
+        function drawRoulette(type) {
+            const cfg = config[type];
+            const canvas = document.getElementById(cfg.canvasId);
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            const center = size / 2;
+            const radius = center - 10;
+            const sliceAngle = (2 * Math.PI) / cfg.totalSlices;
+
+            ctx.clearRect(0, 0, size, size);
+
+            cfg.items.forEach((text, index) => {
+                const angle = index * sliceAngle;
+                
+                // Dibujar el gajo
+                ctx.beginPath();
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, angle, angle + sliceAngle);
+                ctx.lineTo(center, center);
+                ctx.fill();
+                
+                // Borde del gajo
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Añadir el texto del gajo
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+                
+                ctx.fillStyle = "#ffffff";
+                ctx.font = cfg.totalSlices > 30 ? "bold 11px sans-serif" : "bold 14px sans-serif";
+                
+                ctx.fillText(text, radius - 15, 0);
+                ctx.restore();
+            });
+
+            // Círculo decorativo central
+            ctx.beginPath();
+            ctx.arc(center, center, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(center, center, 18, 0, 2 * Math.PI);
+            ctx.fillStyle = '#121212';
+            ctx.fill();
+        }
+
+        // Cambiar la vista entre la ruleta de Subs y Bits
+        function switchRoulette(type) {
+            document.querySelectorAll('.btn-nav').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.roulette-container').forEach(cnt => cnt.classList.remove('active'));
+
+            if (type === 'subs') {
+                document.querySelectorAll('.btn-nav')[0].classList.add('active');
+                document.getElementById('container-subs').classList.add('active');
+            } else {
+                document.querySelectorAll('.btn-nav')[1].classList.add('active');
+                document.getElementById('container-bits').classList.add('active');
+            }
+        }
+
+        // Lógica de giro
+        function spin(type) {
+            const cfg = config[type];
+            if (cfg.isSpinning) return;
+
+            cfg.isSpinning = true;
+            document.getElementById(cfg.resultId).innerText = "¡Girando...!";
+
+            const extraDegrees = Math.floor(Math.random() * 360);
+            const totalSpins = 5 + Math.floor(Math.random() * 5);
+            cfg.currentRotation += (totalSpins * 360) + extraDegrees;
+
+            const canvas = document.getElementById(cfg.canvasId);
+            canvas.style.transform = `rotate(${cfg.currentRotation}deg)`;
+
+            setTimeout(() => {
+                cfg.isSpinning = false;
+                
+                const degreesPerSlice = 360 / cfg.totalSlices;
+                const actualModulo = cfg.currentRotation % 360;
+                
+                const targetAngle = (360 - actualModulo + 270) % 360;
+                const winningIndex = Math.floor(targetAngle / degreesPerSlice) % cfg.totalSlices;
+                const winnerValue = cfg.items[winningIndex];
+
+                const label = type === 'subs' ? 'Subs' : 'Bits';
+                document.getElementById(cfg.resultId).innerText = `¡Resultado: ${winnerValue} ${label}!`;
+            }, 4000);
+        }
+
+        // Inicialización al cargar la página
+        initData();
+        drawRoulette('subs');
+        drawRoulette('bits');
+    </script>
 </body>
 </html>
