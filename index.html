@@ -145,7 +145,6 @@
     </div>
 
     <script>
-        // Configuración y estado de las ruletas
         const config = {
             subs: {
                 canvasId: 'canvas-subs',
@@ -165,12 +164,10 @@
             }
         };
 
-        // Colores alternantes para un diseño limpio y vistoso
         const colors = ['#1e1b4b', '#311042', '#112240', '#0a3622', '#3d0a14', '#2d3748'];
 
-        // Generar datos iniciales
         function initData() {
-            // 1. Ruleta Subs: Números del 2 al 12 desordenados y repetidos hasta tener 24 gajos
+            // 1. Ruleta Subs
             const subsPool = [];
             while(subsPool.length < config.subs.totalSlices) {
                 const block = Array.from({length: 11}, (_, i) => i + 2);
@@ -179,31 +176,31 @@
             }
             config.subs.items = subsPool.slice(0, config.subs.totalSlices);
 
-            // 2. Ruleta Bits: 50 gajos totales, donde el 30% (15 gajos) son 0 de forma fija
+            // 2. Ruleta Bits: 50 gajos totales, 40% (20 gajos) son 0 de forma fija
             const bitsPool = [];
             const totalBitsSlices = config.bits.totalSlices;
-            const zeroSlicesCount = Math.floor(totalBitsSlices * 0.30); // 50 * 0.30 = 15 gajos
+            const zeroSlicesCount = Math.floor(totalBitsSlices * 0.40); // 50 * 0.40 = 20 gajos
 
-            // Añadir los gajos con valor 0
+            // Insertar los 20 ceros fijados por el porcentaje
             for (let i = 0; i < zeroSlicesCount; i++) {
                 bitsPool.push(0);
             }
 
-            // Añadir el resto de gajos con valores entre 500 y 8000 (terminados en 0)
+            // Insertar los 30 gajos restantes distribuidos entre todas las cantidades hasta 4000
             const remainingSlices = totalBitsSlices - zeroSlicesCount;
             for (let i = 0; i < remainingSlices; i++) {
+                // Rango ajustado: de 50 a 400 para multiplicar por 10 y obtener entre 500 y 4000
                 const min = 50;
-                const max = 800;
+                const max = 400;
                 const randomValue = (Math.floor(Math.random() * (max - min + 1)) + min) * 10;
                 bitsPool.push(randomValue);
             }
 
-            // Desordenar por completo la lista para mezclar los ceros de forma aleatoria por la ruleta
+            // Mezclar la lista completa aleatoriamente para distribuir los ceros e importes uniformemente
             bitsPool.sort(() => Math.random() - 0.5);
             config.bits.items = bitsPool;
         }
 
-        // Dibujar la ruleta en el Canvas correspondiente
         function drawRoulette(type) {
             const cfg = config[type];
             const canvas = document.getElementById(cfg.canvasId);
@@ -218,7 +215,6 @@
             cfg.items.forEach((text, index) => {
                 const angle = index * sliceAngle;
                 
-                // Dibujar el gajo
                 ctx.beginPath();
                 ctx.fillStyle = colors[index % colors.length];
                 ctx.moveTo(center, center);
@@ -226,12 +222,10 @@
                 ctx.lineTo(center, center);
                 ctx.fill();
                 
-                // Borde del gajo
                 ctx.strokeStyle = 'rgba(255,255,255,0.05)';
                 ctx.lineWidth = 1;
                 ctx.stroke();
 
-                // Añadir el texto del gajo
                 ctx.save();
                 ctx.translate(center, center);
                 ctx.rotate(angle + sliceAngle / 2);
@@ -245,7 +239,6 @@
                 ctx.restore();
             });
 
-            // Círculo decorativo central
             ctx.beginPath();
             ctx.arc(center, center, 25, 0, 2 * Math.PI);
             ctx.fillStyle = '#ffffff';
@@ -259,7 +252,6 @@
             ctx.fill();
         }
 
-        // Cambiar la vista entre la ruleta de Subs y Bits
         function switchRoulette(type) {
             document.querySelectorAll('.btn-nav').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.roulette-container').forEach(cnt => cnt.classList.remove('active'));
@@ -273,7 +265,6 @@
             }
         }
 
-        // Lógica de giro
         function spin(type) {
             const cfg = config[type];
             if (cfg.isSpinning) return;
@@ -303,7 +294,6 @@
             }, 4000);
         }
 
-        // Inicialización al cargar la página
         initData();
         drawRoulette('subs');
         drawRoulette('bits');
